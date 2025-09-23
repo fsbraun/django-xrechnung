@@ -27,7 +27,7 @@
     <div class="back-link">
         <a href="{% url 'django_xrechnung:invoice_list' %}">&larr; Back to Invoice List</a>
     </div>
-    
+
     <div class="invoice-header">
         <h1 class="invoice-title">Invoice {{ invoice.invoice_number }}</h1>
         <div class="invoice-dates">
@@ -37,7 +37,7 @@
             {% endif %}
         </div>
     </div>
-    
+
     <div class="info-grid">
         <div class="invoice-section">
             <h3>Supplier Information</h3>
@@ -46,7 +46,7 @@
                 <p><strong>Tax ID:</strong> {{ invoice.supplier_tax_id }}</p>
             {% endif %}
         </div>
-        
+
         <div class="invoice-section">
             <h3>Buyer Information</h3>
             <p><strong>Name:</strong> {{ invoice.buyer_name }}</p>
@@ -55,7 +55,7 @@
             {% endif %}
         </div>
     </div>
-    
+
     {% if line_items %}
     <div class="invoice-section">
         <h3>Line Items</h3>
@@ -85,7 +85,7 @@
         </table>
     </div>
     {% endif %}
-    
+
     <div class="invoice-section">
         <h3>Financial Summary</h3>
         <div class="total-section">
@@ -95,12 +95,12 @@
             <p style="font-size: 1.2em;"><strong>Total Amount:</strong> {{ invoice.total_amount }} {{ invoice.currency }}</p>
         </div>
     </div>
-    
+
     <div class="actions">
         <a href="{% url 'django_xrechnung:api_invoice_xml' invoice.pk %}" class="btn">Download XML</a>
         <a href="{% url 'django_xrechnung:api_invoice_detail' invoice.pk %}" class="btn btn-secondary">View JSON</a>
     </div>
-    
+
     {% if invoice.xml_content %}
     <div class="invoice-section">
         <h3>XML Content Preview</h3>

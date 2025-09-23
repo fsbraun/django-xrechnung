@@ -1,0 +1,122 @@
+# Full pre-commit configuration for django-xrechnung
+# This is an example of a complete configuration with all hooks enabled.
+# To use this, rename it to .pre-commit-config.yaml and ensure all tools are installed:
+# pip install black ruff isort mypy bandit django-stubs
+
+repos:
+  # Built-in hooks for basic file validation
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-xml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: requirements-txt-fixer
+      - id: check-docstring-first
+      - id: fix-byte-order-marker
+
+  # Local hooks using installed tools
+  - repo: local
+    hooks:
+      # Python code formatting with Black
+      - id: black
+        name: black
+        entry: black
+        language: system
+        types: [python]
+        args: [--line-length=88, --target-version=py38]
+        exclude: ^(.*\/migrations\/.*|.*\/venv\/.*|.*\/env\/.*)$
+
+      # Python linting with Ruff
+      - id: ruff-check
+        name: ruff-check
+        entry: ruff
+        language: system
+        types: [python]
+        args: [check, --fix, --exit-non-zero-on-fix]
+        exclude: ^(.*\/migrations\/.*|.*\/venv\/.*|.*\/env\/.*)$
+
+      - id: ruff-format
+        name: ruff-format
+        entry: ruff
+        language: system
+        types: [python]
+        args: [format]
+        exclude: ^(.*\/migrations\/.*|.*\/venv\/.*|.*\/env\/.*)$
+
+      # Import sorting with isort
+      - id: isort
+        name: isort
+        entry: isort
+        language: system
+        types: [python]
+        args: [--profile, black, --line-length, "88"]
+        exclude: ^(.*\/migrations\/.*|.*\/venv\/.*|.*\/env\/.*)$
+
+      # Type checking with mypy
+      - id: mypy
+        name: mypy
+        entry: mypy
+        language: system
+        types: [python]
+        args: [--ignore-missing-imports, --check-untyped-defs]
+        exclude: ^(.*\/migrations\/.*|.*\/tests\/.*|.*\/venv\/.*|.*\/env\/.*)$
+
+      # Security checks with bandit
+      - id: bandit
+        name: bandit
+        entry: bandit
+        language: system
+        types: [python]
+        args: [-r, ., -f, json, -o, bandit-report.json]
+        exclude: ^(.*\/tests\/.*|.*\/migrations\/.*|.*\/venv\/.*|.*\/env\/.*)$
+
+      # Django-specific checks
+      - id: django-check
+        name: Django system check
+        entry: python
+        args: [-m, django, check, --settings=tests.settings]
+        language: system
+        pass_filenames: false
+        files: \.(py)$
+        require_serial: true
+
+      - id: django-check-migrations
+        name: Check for missing migrations
+        entry: python
+        args: [-m, django, makemigrations, --check, --dry-run, --settings=tests.settings]
+        language: system
+        pass_filenames: false
+        files: \.(py)$
+        require_serial: true
+
+      # Run tests
+      - id: pytest
+        name: pytest
+        entry: python
+        args: [-m, pytest, tests/, -x]
+        language: system
+        pass_filenames: false
+        files: \.(py)$
+        require_serial: true
+
+# Configuration for pre-commit.ci
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [django-check, django-check-migrations, pytest, mypy, bandit]
+  submodules: false

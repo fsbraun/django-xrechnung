@@ -151,7 +151,13 @@ cd django-xrechnung
 pip install -e .[dev]
 ```
 
-3. Run tests:
+3. Set up pre-commit hooks:
+
+```bash
+pre-commit install
+```
+
+4. Run tests:
 
 ```bash
 pytest
@@ -183,7 +189,34 @@ pytest -v
 
 ### Code Quality
 
-The project uses several tools for code quality:
+The project includes pre-commit hooks for code quality and consistency. Install and set up pre-commit:
+
+```bash
+# Install pre-commit (if not already installed)
+pip install pre-commit
+
+# Install the git hooks
+pre-commit install
+
+# Run hooks on all files (optional)
+pre-commit run --all-files
+```
+
+The pre-commit configuration includes basic file validation hooks. For additional code formatting and linting, install the development tools:
+
+```bash
+# Install additional development tools
+pip install black ruff isort mypy bandit
+
+# Then uncomment the local hooks in .pre-commit-config.yaml for:
+# - Code formatting with black
+# - Linting with ruff
+# - Import sorting with isort
+# - Django-specific checks
+# - Test execution
+```
+
+You can also run the tools manually:
 
 ```bash
 # Format code with black
@@ -194,6 +227,9 @@ ruff check .
 
 # Type checking with mypy
 mypy django_xrechnung/
+
+# Run pre-commit hooks manually on all files
+pre-commit run --all-files
 ```
 
 ## License

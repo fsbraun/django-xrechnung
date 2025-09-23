@@ -11,7 +11,7 @@ urlpatterns = [
     # Web views
     path("", XRechnungInvoiceListView.as_view(), name="invoice_list"),
     path("invoice/<int:pk>/", XRechnungInvoiceDetailView.as_view(), name="invoice_detail"),
-    
+
     # API endpoints
     path("api/invoices/", XRechnungInvoiceApiView.invoice_list_api, name="api_invoice_list"),
     path("api/invoices/<int:pk>/", XRechnungInvoiceApiView.invoice_detail_api, name="api_invoice_detail"),

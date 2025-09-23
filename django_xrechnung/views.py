@@ -15,16 +15,16 @@ class XRechnungInvoiceListView(ListView):
     template_name = "django_xrechnung/invoice_list.html"
     context_object_name = "invoices"
     paginate_by = 20
-    
+
     def get_queryset(self):
         """Filter invoices based on query parameters."""
         queryset = super().get_queryset()
-        
+
         # Filter by supplier name
         supplier = self.request.GET.get("supplier")
         if supplier:
             queryset = queryset.filter(supplier_name__icontains=supplier)
-        
+
         # Filter by date range
         start_date = self.request.GET.get("start_date")
         end_date = self.request.GET.get("end_date")
@@ -32,7 +32,7 @@ class XRechnungInvoiceListView(ListView):
             queryset = queryset.filter(invoice_date__gte=start_date)
         if end_date:
             queryset = queryset.filter(invoice_date__lte=end_date)
-        
+
         return queryset
 
 
@@ -41,7 +41,7 @@ class XRechnungInvoiceDetailView(DetailView):
     model = XRechnungInvoice
     template_name = "django_xrechnung/invoice_detail.html"
     context_object_name = "invoice"
-    
+
     def get_context_data(self, **kwargs):
         """Add line items to the context."""
         context = super().get_context_data(**kwargs)
@@ -53,21 +53,21 @@ class XRechnungInvoiceDetailView(DetailView):
 class XRechnungInvoiceApiView(DetailView):
     """API views for XRechnung invoices."""
     model = XRechnungInvoice
-    
+
     @staticmethod
     @require_http_methods(["GET"])
     def invoice_list_api(request):
         """Return JSON list of invoices."""
         if not request.user.is_authenticated:
             return JsonResponse({"error": "Authentication required"}, status=401)
-            
+
         invoices = XRechnungInvoice.objects.all()
-        
+
         # Apply filters
         supplier = request.GET.get("supplier")
         if supplier:
             invoices = invoices.filter(supplier_name__icontains=supplier)
-        
+
         data = []
         for invoice in invoices:
             data.append({
@@ -79,18 +79,18 @@ class XRechnungInvoiceApiView(DetailView):
                 "total_amount": str(invoice.total_amount),
                 "currency": invoice.currency,
             })
-        
+
         return JsonResponse({"invoices": data})
-    
+
     @staticmethod
     @require_http_methods(["GET"])
     def invoice_detail_api(request, pk):
         """Return JSON detail of a single invoice."""
         if not request.user.is_authenticated:
             return JsonResponse({"error": "Authentication required"}, status=401)
-            
+
         invoice = get_object_or_404(XRechnungInvoice, pk=pk)
-        
+
         data = {
             "id": invoice.id,
             "invoice_number": invoice.invoice_number,
@@ -116,16 +116,16 @@ class XRechnungInvoiceApiView(DetailView):
                 for item in invoice.line_items.all()
             ],
         }
-        
+
         return JsonResponse(data)
-    
+
     @staticmethod
     @csrf_exempt
     @require_http_methods(["GET"])
     def invoice_xml_export(request, pk):
         """Export invoice as XML (basic implementation)."""
         invoice = get_object_or_404(XRechnungInvoice, pk=pk)
-        
+
         if invoice.xml_content:
             return HttpResponse(
                 invoice.xml_content,
@@ -150,7 +150,7 @@ class XRechnungInvoiceApiView(DetailView):
     </Buyer>
     <TotalAmount currency="{invoice.currency}">{invoice.total_amount}</TotalAmount>
 </Invoice>"""
-            
+
             return HttpResponse(
                 xml_content,
                 content_type="application/xml",

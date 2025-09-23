@@ -14,7 +14,7 @@ class XRechnungLineItemInline(admin.TabularInline):
 @admin.register(XRechnungInvoice)
 class XRechnungInvoiceAdmin(admin.ModelAdmin):
     """Admin interface for XRechnung invoices."""
-    
+
     list_display = [
         "invoice_number",
         "invoice_date",
@@ -24,13 +24,13 @@ class XRechnungInvoiceAdmin(admin.ModelAdmin):
         "currency",
         "created_at",
     ]
-    
+
     list_filter = [
         "invoice_date",
         "currency",
         "created_at",
     ]
-    
+
     search_fields = [
         "invoice_number",
         "supplier_name",
@@ -38,13 +38,13 @@ class XRechnungInvoiceAdmin(admin.ModelAdmin):
         "supplier_tax_id",
         "buyer_tax_id",
     ]
-    
+
     readonly_fields = [
         "created_at",
         "updated_at",
         "net_amount",
     ]
-    
+
     fieldsets = (
         (_("Invoice Information"), {
             "fields": (
@@ -87,9 +87,9 @@ class XRechnungInvoiceAdmin(admin.ModelAdmin):
             "classes": ("collapse",)
         }),
     )
-    
+
     inlines = [XRechnungLineItemInline]
-    
+
     def get_readonly_fields(self, request, obj=None):
         """Make certain fields readonly when editing existing objects."""
         readonly = list(self.readonly_fields)
@@ -101,7 +101,7 @@ class XRechnungInvoiceAdmin(admin.ModelAdmin):
 @admin.register(XRechnungLineItem)
 class XRechnungLineItemAdmin(admin.ModelAdmin):
     """Admin interface for XRechnung line items."""
-    
+
     list_display = [
         "invoice",
         "position",
@@ -111,18 +111,18 @@ class XRechnungLineItemAdmin(admin.ModelAdmin):
         "line_total",
         "tax_rate",
     ]
-    
+
     list_filter = [
         "tax_rate",
         "invoice__invoice_date",
     ]
-    
+
     search_fields = [
         "description",
         "invoice__invoice_number",
         "invoice__supplier_name",
     ]
-    
+
     readonly_fields = ["line_total"]
-    
+
     ordering = ["invoice", "position"]
