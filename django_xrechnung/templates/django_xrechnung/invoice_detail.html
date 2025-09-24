@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice {{ invoice.invoice_number }} - XRechnung</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .invoice-header { border-bottom: 2px solid #007bff; padding-bottom: 20px; margin-bottom: 20px; }
+        .invoice-title { font-size: 2em; color: #007bff; margin-bottom: 10px; }
+        .invoice-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .invoice-section h3 { margin-top: 0; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .line-items { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .line-items th, .line-items td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .line-items th { background-color: #f5f5f5; }
+        .total-section { text-align: right; margin-top: 20px; font-size: 1.1em; }
+        .back-link { margin-bottom: 20px; }
+        .actions { margin-top: 20px; }
+        .btn { padding: 10px 15px; margin: 5px; background: #007bff; color: white; text-decoration: none; border-radius: 3px; display: inline-block; }
+        .btn:hover { background: #0056b3; }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #545b62; }
+    </style>
+</head>
+<body>
+    <div class="back-link">
+        <a href="{% url 'django_xrechnung:invoice_list' %}">&larr; Back to Invoice List</a>
+    </div>
+
+    <div class="invoice-header">
+        <h1 class="invoice-title">Invoice {{ invoice.invoice_number }}</h1>
+        <div class="invoice-dates">
+            <strong>Invoice Date:</strong> {{ invoice.invoice_date }}
+            {% if invoice.due_date %}
+                | <strong>Due Date:</strong> {{ invoice.due_date }}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="invoice-section">
+            <h3>Supplier Information</h3>
+            <p><strong>Name:</strong> {{ invoice.supplier_name }}</p>
+            {% if invoice.supplier_tax_id %}
+                <p><strong>Tax ID:</strong> {{ invoice.supplier_tax_id }}</p>
+            {% endif %}
+        </div>
+
+        <div class="invoice-section">
+            <h3>Buyer Information</h3>
+            <p><strong>Name:</strong> {{ invoice.buyer_name }}</p>
+            {% if invoice.buyer_tax_id %}
+                <p><strong>Tax ID:</strong> {{ invoice.buyer_tax_id }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if line_items %}
+    <div class="invoice-section">
+        <h3>Line Items</h3>
+        <table class="line-items">
+            <thead>
+                <tr>
+                    <th>Pos.</th>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Tax Rate</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in line_items %}
+                <tr>
+                    <td>{{ item.position }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.unit_price }} {{ invoice.currency }}</td>
+                    <td>{{ item.tax_rate }}%</td>
+                    <td>{{ item.line_total }} {{ invoice.currency }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="invoice-section">
+        <h3>Financial Summary</h3>
+        <div class="total-section">
+            <p><strong>Net Amount:</strong> {{ invoice.net_amount }} {{ invoice.currency }}</p>
+            <p><strong>Tax Amount:</strong> {{ invoice.tax_amount }} {{ invoice.currency }}</p>
+            <hr>
+            <p style="font-size: 1.2em;"><strong>Total Amount:</strong> {{ invoice.total_amount }} {{ invoice.currency }}</p>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'django_xrechnung:api_invoice_xml' invoice.pk %}" class="btn">Download XML</a>
+        <a href="{% url 'django_xrechnung:api_invoice_detail' invoice.pk %}" class="btn btn-secondary">View JSON</a>
+    </div>
+
+    {% if invoice.xml_content %}
+    <div class="invoice-section">
+        <h3>XML Content Preview</h3>
+        <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; max-height: 300px;">{{ invoice.xml_content|truncatechars:1000 }}</pre>
+        {% if invoice.xml_content|length > 1000 %}
+            <p><em>Content truncated. Download full XML for complete content.</em></p>
+        {% endif %}
+    </div>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}XRechnung Invoices{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .invoice-list { margin-top: 20px; }
+        .invoice-item { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .invoice-header { font-weight: bold; font-size: 1.1em; margin-bottom: 10px; }
+        .invoice-details { color: #666; }
+        .pagination { margin: 20px 0; }
+        .filters { margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px; }
+        .filter-form input, .filter-form button { margin: 5px; padding: 8px; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>{% block heading %}XRechnung Invoices{% endblock %}</h1>
+
+    <div class="filters">
+        <form method="get" class="filter-form">
+            <input type="text" name="supplier" placeholder="Supplier name" value="{{ request.GET.supplier }}">
+            <input type="date" name="start_date" placeholder="Start date" value="{{ request.GET.start_date }}">
+            <input type="date" name="end_date" placeholder="End date" value="{{ request.GET.end_date }}">
+            <button type="submit">Filter</button>
+            <a href="{% url 'django_xrechnung:invoice_list' %}">Clear</a>
+        </form>
+    </div>
+
+    {% block content %}
+    <div class="invoice-list">
+        {% for invoice in invoices %}
+            <div class="invoice-item">
+                <div class="invoice-header">
+                    <a href="{% url 'django_xrechnung:invoice_detail' invoice.pk %}">
+                        Invoice {{ invoice.invoice_number }}
+                    </a>
+                </div>
+                <div class="invoice-details">
+                    <strong>Date:</strong> {{ invoice.invoice_date }}<br>
+                    <strong>Supplier:</strong> {{ invoice.supplier_name }}<br>
+                    <strong>Buyer:</strong> {{ invoice.buyer_name }}<br>
+                    <strong>Total:</strong> {{ invoice.total_amount }} {{ invoice.currency }}
+                </div>
+            </div>
+        {% empty %}
+            <p>No invoices found.</p>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+    {% endblock %}
+</body>
+</html>
